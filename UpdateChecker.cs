@@ -28,6 +28,9 @@ internal static class UpdateChecker
     private const string ManifestUrlJsDelivr =
         "https://cdn.jsdelivr.net/gh/onderxyilmaz/test-dotnet-1@master/update/latest.json";
 
+    private static readonly Uri ManifestGitHubApiUri =
+        new("https://api.github.com/repos/onderxyilmaz/test-dotnet-1/contents/update/latest.json?ref=master");
+
     private static HttpClient CreateHttpClient()
     {
         var c = new HttpClient { Timeout = TimeSpan.FromSeconds(25) };
@@ -109,8 +112,21 @@ internal static class UpdateChecker
     {
         UpdateManifest? manifest = null;
 
+        // 1) GitHub REST (ham gövde) — ara CDN’nin stale raw.githubusercontent içeriğinden farklı uçtan gelir.
+        try
+        {
+            manifest = await TryDownloadManifestViaGitHubApiAsync(ct).ConfigureAwait(false);
+        }
+        catch
+        {
+            /* devam et */
+        }
+
         foreach (var uri in EnumerateManifestUris())
         {
+            if (manifest is not null)
+                break;
+
             try
             {
                 manifest = await TryDownloadManifestAsync(uri, ct).ConfigureAwait(false);
@@ -137,6 +153,22 @@ internal static class UpdateChecker
             return new(true, $"Yayındaki sürüm: {FormatDisplayVersion(remote)}", manifest.DownloadUrl, remote);
 
         return new(false, $"En güncel sürümü kullanıyorsunuz ({FormatDisplayVersion(remote)} bildirilen).", null, remote);
+    }
+
+    private static async Task<UpdateManifest?> TryDownloadManifestViaGitHubApiAsync(CancellationToken ct)
+    {
+        var url =
+            $"{ManifestGitHubApiUri.AbsoluteUri}&cb={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid():N}";
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Accept.ParseAdd("application/vnd.github.raw");
+
+        using var response = await Http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct)
+            .ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        return await JsonSerializer.DeserializeAsync<UpdateManifest>(stream, JsonOptions, ct)
+            .ConfigureAwait(false);
     }
 
     private static async Task<UpdateManifest?> TryDownloadManifestAsync(Uri uri, CancellationToken ct)
