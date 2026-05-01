@@ -51,13 +51,20 @@ public partial class MainWindow : Window
 
             if (!result.UpdateAvailable)
             {
+                var remoteHint = result.RemoteVersion is { } rv
+                    ? UpdateChecker.FormatDisplayVersion(rv)
+                    : "—";
+
                 GuncellemeDurumu.Text =
-                    $"Yeni bir sürüm yok. Çalışan sürüm: {currentLabel}.";
+                    $"Yeni bir sürüm yok. Yerel: {currentLabel}. Manifest’te: {remoteHint}.";
 
                 if (manualInteraction)
                 {
                     MessageBox.Show(
-                        $"Şu anda yeni bir güncelleme bulunamadı.\n\nÇalışan sürüm: {currentLabel}",
+                        $"Şu anda yeni bir güncelleme bulunamadı.\n\n" +
+                        $"Yerel derleme: {currentLabel}\n" +
+                        $"Manifest sürümü: {remoteHint}\n\n" +
+                        $"Exe üzerinde sağ tık → Özellikler → Ayrıntılar’da “Ürün sürümü”nü de kontrol edin.",
                         "Güncelleme kontrolü",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);

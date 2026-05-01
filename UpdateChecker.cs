@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 
 namespace BasitWindowsUygulamasi;
@@ -12,12 +14,11 @@ internal static class UpdateChecker
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    /// <summary>
-    /// Repodaki <c>update/latest.json</c> (master) ile eşleşmeli URL.
-    /// </summary>
+    /// <summary>Repo manifest adresi; isteklerde <see cref="BuildManifestUri"/> ile önbellek kırıcı eklenir.</summary>
     internal const string ManifestUrl =
         "https://raw.githubusercontent.com/onderxyilmaz/test-dotnet-1/master/update/latest.json";
 
@@ -26,8 +27,15 @@ internal static class UpdateChecker
         var c = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         var v = GetAppVersion();
         c.DefaultRequestHeaders.UserAgent.ParseAdd($"BasitWindowsUygulamasi/{FormatDisplayVersion(v)}");
+        c.DefaultRequestHeaders.CacheControl =
+            new CacheControlHeaderValue { NoCache = true, NoStore = true, MaxAge = TimeSpan.Zero };
+        c.DefaultRequestHeaders.TryAddWithoutValidation("Pragma", "no-cache");
         return c;
     }
+
+    /// <summary>CDN / ara önbelleklerde eski <c>latest.json</c> kalmaması için her çağrıda benzersiz sorgu.</summary>
+    internal static Uri BuildManifestUri() =>
+        new UriBuilder(ManifestUrl) { Query = "t=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }.Uri;
 
     internal static Version GetAppVersion()
     {
@@ -40,7 +48,7 @@ internal static class UpdateChecker
 
     internal static async Task<UpdateCheckResult> CheckAsync(Version current, CancellationToken ct = default)
     {
-        using var response = await Http.GetAsync(ManifestUrl, HttpCompletionOption.ResponseHeadersRead, ct)
+        using var response = await Http.GetAsync(BuildManifestUri(), HttpCompletionOption.ResponseHeadersRead, ct)
             .ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Windows;
 
@@ -16,6 +17,9 @@ internal static class UpdateApplier
         var v = UpdateChecker.GetAppVersion();
         Http.DefaultRequestHeaders.UserAgent.ParseAdd(
             $"BasitWindowsUygulamasi/{UpdateChecker.FormatDisplayVersion(v)}");
+        Http.DefaultRequestHeaders.CacheControl =
+            new CacheControlHeaderValue { NoCache = true, NoStore = true, MaxAge = TimeSpan.Zero };
+        Http.DefaultRequestHeaders.TryAddWithoutValidation("Pragma", "no-cache");
     }
 
     internal static bool CanAutoApply(string? downloadUrl, out string? reason)
