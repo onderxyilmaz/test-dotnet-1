@@ -13,6 +13,35 @@
         WindowStartupLocation="CenterScreen"
         Loaded="MainWindow_Loaded"
         Background="#DFE9F9">
+    <Window.Resources>
+        <!-- Varsayılan tema şablonu yerine yumuşak dolgu görünsün diye düz kenar şablonu -->
+        <Style x:Key="SoftRoundedButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Shell"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Shell" Property="Opacity" Value="0.52" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Shell" Property="Opacity" Value="0.92" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
     <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -70,17 +99,27 @@
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
             <Button x:Name="AzaltButonu"
+                    Style="{StaticResource SoftRoundedButton}"
                     Padding="20,12"
                     FontSize="15"
                     Content="Sayacı azalt"
                     IsEnabled="False"
-                    Click="AzaltButonu_Click" />
+                    Click="AzaltButonu_Click"
+                    Background="#F8E9EF"
+                    BorderBrush="#E4BDCF"
+                    BorderThickness="1"
+                    Foreground="#5C3D4A" />
             <Button x:Name="ArtirButonu"
+                    Style="{StaticResource SoftRoundedButton}"
                     Margin="12,0,0,0"
                     Padding="24,12"
                     FontSize="15"
                     Content="Sayacı artır"
-                    Click="ArtirButonu_Click" />
+                    Click="ArtirButonu_Click"
+                    Background="#E4F5EE"
+                    BorderBrush="#9FD4BF"
+                    BorderThickness="1"
+                    Foreground="#1F4F3F" />
             <Button x:Name="GuncellemeKontrolButonu"
                     Margin="12,0,0,0"
                     Padding="24,12"
