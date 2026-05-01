@@ -10,12 +10,14 @@
         Width="520"
         MinHeight="420"
         MinWidth="400"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Loaded="MainWindow_Loaded">
     <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" MinHeight="160" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -53,13 +55,32 @@
             </StackPanel>
         </Border>
 
-        <Button Grid.Row="3"
-                x:Name="ArtirButonu"
-                Margin="0,24,0,0"
-                Padding="24,12"
-                HorizontalAlignment="Center"
-                FontSize="15"
-                Content="Sayacı artır"
-                Click="ArtirButonu_Click" />
+        <StackPanel Grid.Row="3"
+                    Margin="0,24,0,0"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <Button x:Name="ArtirButonu"
+                    Padding="24,12"
+                    FontSize="15"
+                    Content="Sayacı artır"
+                    Click="ArtirButonu_Click" />
+            <Button x:Name="GuncellemeKontrolButonu"
+                    Margin="12,0,0,0"
+                    Padding="24,12"
+                    FontSize="15"
+                    Content="Güncellemeleri kontrol et"
+                    Click="GuncellemeKontrolButonu_Click" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Margin="0,16,0,0">
+            <TextBlock x:Name="SurumMetni"
+                       FontSize="12"
+                       Foreground="#888" />
+            <TextBlock x:Name="GuncellemeDurumu"
+                       Margin="0,4,0,0"
+                       FontSize="12"
+                       Foreground="#666"
+                       TextWrapping="Wrap" />
+        </StackPanel>
     </Grid>
 </Window>
