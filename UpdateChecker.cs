@@ -24,7 +24,8 @@ internal static class UpdateChecker
     private static HttpClient CreateHttpClient()
     {
         var c = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        c.DefaultRequestHeaders.UserAgent.ParseAdd("BasitWindowsUygulamasi/1.0");
+        var v = GetAppVersion();
+        c.DefaultRequestHeaders.UserAgent.ParseAdd($"BasitWindowsUygulamasi/{FormatDisplayVersion(v)}");
         return c;
     }
 

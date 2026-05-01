@@ -11,7 +11,8 @@
         MinHeight="470"
         MinWidth="400"
         WindowStartupLocation="CenterScreen"
-        Loaded="MainWindow_Loaded">
+        Loaded="MainWindow_Loaded"
+        Background="#DFE9F9">
     <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -26,11 +27,12 @@
                        FontSize="28"
                        FontWeight="SemiBold"
                        Foreground="#222" />
-            <TextBlock x:Name="UstSurumMetni"
-                       Margin="0,8,0,0"
-                       FontSize="14"
-                       Foreground="#616161"
-                       Text="Çalışan sürüm: —" />
+            <TextBlock x:Name="SurumKimligiMetni"
+                       Margin="0,10,0,0"
+                       FontSize="17"
+                       FontWeight="SemiBold"
+                       Foreground="#0D47A1"
+                       Text="Sürüm —" />
         </StackPanel>
 
         <TextBlock Grid.Row="1"
@@ -42,7 +44,7 @@
 
         <Border Grid.Row="2"
                 MinHeight="150"
-                Background="#F5F7FA"
+                Background="#FFFFFF"
                 CornerRadius="8"
                 Padding="20"
                 VerticalAlignment="Stretch">

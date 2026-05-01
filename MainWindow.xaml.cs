@@ -17,7 +17,7 @@ public partial class MainWindow : Window
         var v = UpdateChecker.GetAppVersion();
         var label = UpdateChecker.FormatDisplayVersion(v);
         Title = $"Basit Windows Uygulaması — Sürüm {label}";
-        UstSurumMetni.Text = $"Çalışan sürüm: {label}";
+        SurumKimligiMetni.Text = $"Sürüm {label}";
         await RunUpdateCheckAsync(v, manualInteraction: false);
     }
 

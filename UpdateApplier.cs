@@ -13,7 +13,9 @@ internal static class UpdateApplier
 
     static UpdateApplier()
     {
-        Http.DefaultRequestHeaders.UserAgent.ParseAdd("BasitWindowsUygulamasi/1.0");
+        var v = UpdateChecker.GetAppVersion();
+        Http.DefaultRequestHeaders.UserAgent.ParseAdd(
+            $"BasitWindowsUygulamasi/{UpdateChecker.FormatDisplayVersion(v)}");
     }
 
     internal static bool CanAutoApply(string? downloadUrl, out string? reason)
