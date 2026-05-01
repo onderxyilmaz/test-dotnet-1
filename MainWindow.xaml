@@ -21,11 +21,17 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0"
-                   Text="Hoş geldiniz"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   Foreground="#222" />
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Hoş geldiniz"
+                       FontSize="28"
+                       FontWeight="SemiBold"
+                       Foreground="#222" />
+            <TextBlock x:Name="UstSurumMetni"
+                       Margin="0,8,0,0"
+                       FontSize="14"
+                       Foreground="#616161"
+                       Text="Çalışan sürüm: —" />
+        </StackPanel>
 
         <TextBlock Grid.Row="1"
                    Margin="0,10,0,24"
@@ -72,15 +78,11 @@
                     Click="GuncellemeKontrolButonu_Click" />
         </StackPanel>
 
-        <StackPanel Grid.Row="4" Margin="0,16,0,0">
-            <TextBlock x:Name="SurumMetni"
-                       FontSize="12"
-                       Foreground="#888" />
-            <TextBlock x:Name="GuncellemeDurumu"
-                       Margin="0,4,0,0"
-                       FontSize="12"
-                       Foreground="#666"
-                       TextWrapping="Wrap" />
-        </StackPanel>
+        <TextBlock Grid.Row="4"
+                   x:Name="GuncellemeDurumu"
+                   Margin="0,16,0,0"
+                   FontSize="12"
+                   Foreground="#666"
+                   TextWrapping="Wrap" />
     </Grid>
 </Window>

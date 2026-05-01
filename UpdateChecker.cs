@@ -53,32 +53,24 @@ internal static class UpdateChecker
             return new(false, "Uzak sürüm bilgisi okunamadı.", null, null);
 
         if (remote > current)
-            return new(true, $"Yeni sürüm: {FormatDisplayVersion(remote)}", manifest.DownloadUrl, remote);
+            return new(true, $"Yayındaki sürüm: {FormatDisplayVersion(remote)}", manifest.DownloadUrl, remote);
 
-        return new(false, "En son sürümü kullanıyorsunuz.", null, remote);
+        return new(false, $"En güncel sürümü kullanıyorsunuz ({FormatDisplayVersion(remote)} bildirilen).", null, remote);
     }
 
-    internal static void OfferOpenDownloadPage(string? downloadUrl)
+    internal static bool TryOpenUrlInBrowser(string? url)
     {
-        if (string.IsNullOrWhiteSpace(downloadUrl))
+        if (string.IsNullOrWhiteSpace(url))
+            return false;
+        try
         {
-            MessageBox.Show(
-                "İndirme adresi tanımlı değil. Lütfen proje sayfasından veya dağıtımınızdan güncellemeyi alın.",
-                "Güncelleme",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-            return;
+            Process.Start(new ProcessStartInfo { FileName = url.Trim(), UseShellExecute = true });
+            return true;
         }
-
-        var open = MessageBox.Show(
-            $"İndirme adresini tarayıcıda açmak ister misiniz?\n\n{downloadUrl}",
-            "Güncelleme",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-        if (open != MessageBoxResult.Yes)
-            return;
-
-        Process.Start(new ProcessStartInfo { FileName = downloadUrl.Trim(), UseShellExecute = true });
+        catch
+        {
+            return false;
+        }
     }
 
     private sealed class UpdateManifest
