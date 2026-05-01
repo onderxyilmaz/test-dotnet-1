@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:BasitWindowsUygulamasi"
         mc:Ignorable="d"
         Title="Basit Windows Uygulaması"
-        Height="460"
+        Height="515"
         Width="520"
-        MinHeight="420"
+        MinHeight="470"
         MinWidth="400"
         WindowStartupLocation="CenterScreen"
         Loaded="MainWindow_Loaded">
