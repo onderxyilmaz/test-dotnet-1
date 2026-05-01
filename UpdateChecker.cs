@@ -18,13 +18,19 @@ internal static class UpdateChecker
         NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    /// <summary>Repo manifest adresi; isteklerde <see cref="BuildManifestUri"/> ile önbellek kırıcı eklenir.</summary>
+    /// <summary>Yalnızca belge bilgisi; istek adresleri <see cref="EnumerateManifestUris"/> ile üretilir.</summary>
     internal const string ManifestUrl =
         "https://raw.githubusercontent.com/onderxyilmaz/test-dotnet-1/master/update/latest.json";
 
+    private const string ManifestUrlRaw =
+        "https://raw.githubusercontent.com/onderxyilmaz/test-dotnet-1/master/update/latest.json";
+
+    private const string ManifestUrlJsDelivr =
+        "https://cdn.jsdelivr.net/gh/onderxyilmaz/test-dotnet-1@master/update/latest.json";
+
     private static HttpClient CreateHttpClient()
     {
-        var c = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+        var c = new HttpClient { Timeout = TimeSpan.FromSeconds(25) };
         var v = GetAppVersion();
         c.DefaultRequestHeaders.UserAgent.ParseAdd($"BasitWindowsUygulamasi/{FormatDisplayVersion(v)}");
         c.DefaultRequestHeaders.CacheControl =
@@ -33,14 +39,67 @@ internal static class UpdateChecker
         return c;
     }
 
-    /// <summary>CDN / ara önbelleklerde eski <c>latest.json</c> kalmaması için her çağrıda benzersiz sorgu.</summary>
-    internal static Uri BuildManifestUri() =>
-        new UriBuilder(ManifestUrl) { Query = "t=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }.Uri;
+    /// <summary>CDN ara önbelleğini atlatabilmek için her istek için farklı sorgu dizesi.</summary>
+    private static Uri WithCacheBuster(string absoluteUrl)
+    {
+        var b = new UriBuilder(absoluteUrl)
+        {
+            Query = "cb=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + "_" + Guid.NewGuid().ToString("N")
+        };
+        return b.Uri;
+    }
 
+    internal static IEnumerable<Uri> EnumerateManifestUris()
+    {
+        yield return WithCacheBuster(ManifestUrlRaw);
+        yield return WithCacheBuster(ManifestUrlJsDelivr);
+    }
+
+    /// <remarks>Exe üzerindeki ürün/dosya sürümü, bazen assembly adından daha güvenilir (kısmen kopyalanmış dll senaryosu).</remarks>
     internal static Version GetAppVersion()
     {
-        var v = Assembly.GetExecutingAssembly().GetName().Version;
-        return v ?? new Version(1, 0);
+        var exe = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(exe))
+        {
+            try
+            {
+                var fvi = FileVersionInfo.GetVersionInfo(exe);
+                if (TryParseLooseVersion(fvi.ProductVersion, out var pv))
+                    return pv;
+                if (TryParseLooseVersion(fvi.FileVersion, out var fv))
+                    return fv;
+            }
+            catch
+            {
+                /* yoksay */
+            }
+        }
+
+        var av = Assembly.GetExecutingAssembly().GetName().Version;
+        return av ?? new Version(1, 0);
+    }
+
+    private static bool TryParseLooseVersion(string? input, out Version version)
+    {
+        version = new Version(0, 0);
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        var s = input.Trim();
+
+        var plus = s.IndexOf('+', StringComparison.Ordinal);
+        if (plus >= 0)
+            s = s[..plus].Trim();
+
+        var dash = s.IndexOf('-', StringComparison.Ordinal);
+        if (dash >= 0)
+            s = s[..dash].Trim();
+
+        if (!Version.TryParse(s, out var parsed))
+            return false;
+
+        version = parsed;
+        return true;
     }
 
     internal static string FormatDisplayVersion(Version v) =>
@@ -48,23 +107,46 @@ internal static class UpdateChecker
 
     internal static async Task<UpdateCheckResult> CheckAsync(Version current, CancellationToken ct = default)
     {
-        using var response = await Http.GetAsync(BuildManifestUri(), HttpCompletionOption.ResponseHeadersRead, ct)
-            .ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
-        var manifest = await JsonSerializer.DeserializeAsync<UpdateManifest>(stream, JsonOptions, ct)
-            .ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(manifest?.Version))
+        UpdateManifest? manifest = null;
+
+        foreach (var uri in EnumerateManifestUris())
+        {
+            try
+            {
+                manifest = await TryDownloadManifestAsync(uri, ct).ConfigureAwait(false);
+                if (manifest is not null)
+                    break;
+            }
+            catch
+            {
+                /* bir sonraki uç */
+            }
+        }
+
+        if (manifest is null)
+            throw new HttpRequestException("Güncelleme manifestosu hiçbir adresten alınamadı.");
+
+        if (string.IsNullOrWhiteSpace(manifest.Version))
             return new(false, "Güncelleme dosyası geçersiz.", null, null);
 
         var verString = manifest.Version.Trim();
-        if (!Version.TryParse(verString, out var remote))
+        if (!TryParseLooseVersion(verString, out var remote))
             return new(false, "Uzak sürüm bilgisi okunamadı.", null, null);
 
         if (remote > current)
             return new(true, $"Yayındaki sürüm: {FormatDisplayVersion(remote)}", manifest.DownloadUrl, remote);
 
         return new(false, $"En güncel sürümü kullanıyorsunuz ({FormatDisplayVersion(remote)} bildirilen).", null, remote);
+    }
+
+    private static async Task<UpdateManifest?> TryDownloadManifestAsync(Uri uri, CancellationToken ct)
+    {
+        using var response = await Http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct)
+            .ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        return await JsonSerializer.DeserializeAsync<UpdateManifest>(stream, JsonOptions, ct)
+            .ConfigureAwait(false);
     }
 
     internal static bool TryOpenUrlInBrowser(string? url)
