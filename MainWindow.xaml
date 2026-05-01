@@ -8,8 +8,11 @@
         Title="Basit Windows Uygulaması"
         Height="515"
         Width="560"
-        MinHeight="470"
-        MinWidth="460"
+        MinHeight="515"
+        MaxHeight="515"
+        MinWidth="560"
+        MaxWidth="560"
+        ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         Loaded="MainWindow_Loaded"
         Background="#DFE9F9">

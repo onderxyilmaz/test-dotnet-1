@@ -12,6 +12,13 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        if (WindowState == WindowState.Maximized)
+            WindowState = WindowState.Normal;
+    }
+
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         var v = UpdateChecker.GetAppVersion();
