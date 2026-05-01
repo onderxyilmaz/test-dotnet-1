@@ -1,0 +1,65 @@
+﻿<Window x:Class="BasitWindowsUygulamasi.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BasitWindowsUygulamasi"
+        mc:Ignorable="d"
+        Title="Basit Windows Uygulaması"
+        Height="460"
+        Width="520"
+        MinHeight="420"
+        MinWidth="400"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="160" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Hoş geldiniz"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   Foreground="#222" />
+
+        <TextBlock Grid.Row="1"
+                   Margin="0,10,0,24"
+                   TextWrapping="Wrap"
+                   Foreground="#555"
+                   FontSize="14"
+                   Text="Bu proje sisteminizde kurulu olan .NET 10 ile oluşturulmuş basit bir WPF masaüstü uygulamasıdır." />
+
+        <Border Grid.Row="2"
+                MinHeight="150"
+                Background="#F5F7FA"
+                CornerRadius="8"
+                Padding="20"
+                VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="15"
+                           Foreground="#444"
+                           Text="Butona bastığınızda sayaç artar:" />
+                <TextBlock x:Name="SayacMetni"
+                           Margin="0,12,0,0"
+                           HorizontalAlignment="Center"
+                           FontSize="42"
+                           FontWeight="Bold"
+                           Foreground="#1565C0"
+                           Text="0" />
+            </StackPanel>
+        </Border>
+
+        <Button Grid.Row="3"
+                x:Name="ArtirButonu"
+                Margin="0,24,0,0"
+                Padding="24,12"
+                HorizontalAlignment="Center"
+                FontSize="15"
+                Content="Sayacı artır"
+                Click="ArtirButonu_Click" />
+    </Grid>
+</Window>
