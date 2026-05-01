@@ -18,6 +18,7 @@ public partial class MainWindow : Window
         var label = UpdateChecker.FormatDisplayVersion(v);
         Title = $"Basit Windows Uygulaması — Sürüm {label}";
         SurumKimligiMetni.Text = $"Sürüm {label}";
+        GuncellemeSonrasiSayacArayuzu();
         await RunUpdateCheckAsync(v, manualInteraction: false);
     }
 
@@ -25,6 +26,7 @@ public partial class MainWindow : Window
     {
         GuncellemeKontrolButonu.IsEnabled = false;
         ArtirButonu.IsEnabled = false;
+        AzaltButonu.IsEnabled = false;
         try
         {
             Mouse.OverrideCursor = Cursors.Wait;
@@ -35,6 +37,7 @@ public partial class MainWindow : Window
             Mouse.OverrideCursor = null;
             ArtirButonu.IsEnabled = true;
             GuncellemeKontrolButonu.IsEnabled = true;
+            GuncellemeSonrasiSayacArayuzu();
         }
     }
 
@@ -149,6 +152,25 @@ public partial class MainWindow : Window
     private void ArtirButonu_Click(object sender, RoutedEventArgs e)
     {
         _sayac++;
+        SayacGuncelle();
+    }
+
+    private void AzaltButonu_Click(object sender, RoutedEventArgs e)
+    {
+        if (_sayac > 0)
+            _sayac--;
+        SayacGuncelle();
+    }
+
+    private void SayacGuncelle()
+    {
         SayacMetni.Text = _sayac.ToString();
+        AzaltButonu.IsEnabled = _sayac > 0;
+    }
+
+    private void GuncellemeSonrasiSayacArayuzu()
+    {
+        SayacMetni.Text = _sayac.ToString();
+        AzaltButonu.IsEnabled = _sayac > 0;
     }
 }

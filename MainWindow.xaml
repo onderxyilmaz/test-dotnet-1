@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="Basit Windows Uygulaması"
         Height="515"
-        Width="520"
+        Width="560"
         MinHeight="470"
-        MinWidth="400"
+        MinWidth="460"
         WindowStartupLocation="CenterScreen"
         Loaded="MainWindow_Loaded"
         Background="#DFE9F9">
@@ -52,7 +52,9 @@
                 <TextBlock HorizontalAlignment="Center"
                            FontSize="15"
                            Foreground="#444"
-                           Text="Butona bastığınızda sayaç artar:" />
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Text="Artır ve azalt düğmeleriyle sayacı değiştirebilirsiniz." />
                 <TextBlock x:Name="SayacMetni"
                            Margin="0,12,0,0"
                            HorizontalAlignment="Center"
@@ -67,7 +69,14 @@
                     Margin="0,24,0,0"
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
+            <Button x:Name="AzaltButonu"
+                    Padding="20,12"
+                    FontSize="15"
+                    Content="Sayacı azalt"
+                    IsEnabled="False"
+                    Click="AzaltButonu_Click" />
             <Button x:Name="ArtirButonu"
+                    Margin="12,0,0,0"
                     Padding="24,12"
                     FontSize="15"
                     Content="Sayacı artır"
